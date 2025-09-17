@@ -559,7 +559,7 @@
                 return;
             }
 
-            // Reset admin webhook visibility for all users first
+            // Reset admin webhook visibility
             document.getElementById('adminWebhook').style.display = 'none';
 
             document.getElementById('crmInterface').style.display = 'block';
@@ -570,9 +570,11 @@
             const savedPhone = localStorage.getItem(`phone-${currentAgent}`);
             if (savedPhone) {
                 document.getElementById('agentPhoneInput').value = savedPhone;
+            } else {
+                document.getElementById('agentPhoneInput').value = '';
             }
 
-            // Show webhook URL ONLY for admin and ONLY when admin is logged in
+            // Show webhook URL ONLY for admin
             if (currentAgent === 'ata@gospeeds.com') {
                 document.getElementById('adminWebhook').style.display = 'block';
                 document.getElementById('webhookUrl').textContent = window.location.origin + '/.netlify/functions/webhook';
@@ -581,6 +583,116 @@
             updateStats();
             showContent();
         }
+
+        // SIMPLIFIED SOLUTION: Manual Data Entry for Testing
+        function addTestLead() {
+            if (!currentAgent) {
+                alert('Please login first');
+                return;
+            }
+
+            // This simulates what your webhook should be doing
+            const testLead = {
+                id: Date.now(),
+                businessName: 'D&D Luxury Rentals LLC',
+                contactName: 'David Stocking',
+                phone: '+19728664200',
+                address: '14175 DALLAS PKWY, Dallas, TX, 75254',
+                email: '',
+                industry: 'Automobile Rental, With Driver',
+                title: 'Mng MBR',
+                status: 'left-live-message',
+                callDateTime: new Date().toISOString(),
+                duration: '9 seconds',
+                notes: '',
+                agentName: agentNames[currentAgent],
+                agentEmail: currentAgent,
+                callType: 'outgoing',
+                callStatus: 'answered',
+                recordingUrl: 'https://calls.kixie.com/sample.mp3',
+                kixieCallId: 'test-' + Date.now(),
+                timestamp: new Date().toISOString()
+            };
+
+            const allData = loadData();
+            if (!allData[currentAgent]) {
+                allData[currentAgent] = [];
+            }
+            
+            allData[currentAgent].push(testLead);
+            saveData(allData);
+            
+            updateStats();
+            showContent();
+            
+            alert('Test lead added! This is what your webhook should do automatically.');
+        }
+
+        // Add test button (temporary for debugging)
+        function addTestButton() {
+            const testButton = document.createElement('button');
+            testButton.textContent = 'Add Test Lead (Debug)';
+            testButton.style.cssText = `
+                position: fixed;
+                bottom: 80px;
+                right: 20px;
+                background: linear-gradient(135deg, #f59e0b, #d97706);
+                color: white;
+                border: none;
+                padding: 10px 15px;
+                border-radius: 8px;
+                font-weight: 600;
+                cursor: pointer;
+                z-index: 1000;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                font-size: 0.8em;
+            `;
+            
+            testButton.onclick = addTestLead;
+            document.body.appendChild(testButton);
+        }
+
+        // Add manual refresh button
+        function addRefreshButton() {
+            const refreshButton = document.createElement('button');
+            refreshButton.textContent = 'Refresh Data';
+            refreshButton.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                color: white;
+                border: none;
+                padding: 10px 15px;
+                border-radius: 8px;
+                font-weight: 600;
+                cursor: pointer;
+                z-index: 1000;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            `;
+            
+            refreshButton.onclick = function() {
+                if (currentAgent) {
+                    updateStats();
+                    showContent();
+                    
+                    refreshButton.textContent = 'Refreshed!';
+                    setTimeout(() => {
+                        refreshButton.textContent = 'Refresh Data';
+                    }, 1000);
+                } else {
+                    alert('Please login first');
+                }
+            };
+            
+            document.body.appendChild(refreshButton);
+        }
+
+        // Initialize buttons when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            addRefreshButton();
+            addTestButton(); // Remove this in production
+        });
 
         function saveAgentPhone() {
             const phoneInput = document.getElementById('agentPhoneInput');
@@ -1049,48 +1161,16 @@
             console.log('New GoSpeeds lead processed:', newLead);
         }
 
-        // Auto-refresh every 10 seconds instead of 30 for faster updates
+        // Simplified auto-refresh (removed complex polling)
         setInterval(() => {
             if (currentAgent) {
                 updateStats();
                 showContent();
             }
-        }, 10000);
+        }, 30000);
 
-        // Try to establish real-time connection for webhook data
-        // This creates a simple polling mechanism to check for new data
-        let lastUpdateCheck = Date.now();
-        
-        function checkForNewData() {
-            // This function would normally connect to a real-time service
-            // For now, it just refreshes the display more frequently
-            if (currentAgent) {
-                const currentTime = Date.now();
-                // Only update if it's been at least 3 seconds since last update
-                if (currentTime - lastUpdateCheck > 3000) {
-                    updateStats();
-                    showContent();
-                    lastUpdateCheck = currentTime;
-                }
-            }
-        }
-
-        // Check for new data every 3 seconds when user is active
-        setInterval(checkForNewData, 3000);
-
-        // Webhook endpoint for testing and real-time updates
+        // Simple webhook endpoint for direct testing
         window.webhookEndpoint = processWebhookData;
-        
-        // Add visibility change handler to refresh when tab becomes active
-        document.addEventListener('visibilitychange', function() {
-            if (!document.hidden && currentAgent) {
-                // Refresh data when user returns to tab
-                setTimeout(() => {
-                    updateStats();
-                    showContent();
-                }, 500);
-            }
-        });
     </script>
 </body>
 </html>
