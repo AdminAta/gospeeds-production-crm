@@ -559,6 +559,9 @@
                 return;
             }
 
+            // Reset admin webhook visibility for all users first
+            document.getElementById('adminWebhook').style.display = 'none';
+
             document.getElementById('crmInterface').style.display = 'block';
             document.getElementById('agentInfo').style.display = 'flex';
             document.getElementById('agentName').textContent = agentNames[currentAgent];
@@ -569,7 +572,7 @@
                 document.getElementById('agentPhoneInput').value = savedPhone;
             }
 
-            // Show webhook URL only for admin
+            // Show webhook URL ONLY for admin and ONLY when admin is logged in
             if (currentAgent === 'ata@gospeeds.com') {
                 document.getElementById('adminWebhook').style.display = 'block';
                 document.getElementById('webhookUrl').textContent = window.location.origin + '/.netlify/functions/webhook';
@@ -662,6 +665,12 @@
                             <div class="detail-item">
                                 <div class="detail-label">Contact Name</div>
                                 <div class="detail-value">${lead.contactName}</div>
+                            </div>
+                        ` : ''}
+                        ${lead.title ? `
+                            <div class="detail-item">
+                                <div class="detail-label">Title</div>
+                                <div class="detail-value">${lead.title}</div>
                             </div>
                         ` : ''}
                         <div class="detail-item">
@@ -1040,16 +1049,48 @@
             console.log('New GoSpeeds lead processed:', newLead);
         }
 
-        // Auto-refresh every 30 seconds
+        // Auto-refresh every 10 seconds instead of 30 for faster updates
         setInterval(() => {
             if (currentAgent) {
                 updateStats();
                 showContent();
             }
-        }, 30000);
+        }, 10000);
 
-        // Webhook endpoint for testing
+        // Try to establish real-time connection for webhook data
+        // This creates a simple polling mechanism to check for new data
+        let lastUpdateCheck = Date.now();
+        
+        function checkForNewData() {
+            // This function would normally connect to a real-time service
+            // For now, it just refreshes the display more frequently
+            if (currentAgent) {
+                const currentTime = Date.now();
+                // Only update if it's been at least 3 seconds since last update
+                if (currentTime - lastUpdateCheck > 3000) {
+                    updateStats();
+                    showContent();
+                    lastUpdateCheck = currentTime;
+                }
+            }
+        }
+
+        // Check for new data every 3 seconds when user is active
+        setInterval(checkForNewData, 3000);
+
+        // Webhook endpoint for testing and real-time updates
         window.webhookEndpoint = processWebhookData;
+        
+        // Add visibility change handler to refresh when tab becomes active
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden && currentAgent) {
+                // Refresh data when user returns to tab
+                setTimeout(() => {
+                    updateStats();
+                    showContent();
+                }, 500);
+            }
+        });
     </script>
 </body>
 </html>
