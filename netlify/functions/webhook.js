@@ -30,9 +30,9 @@ exports.handler = async (event, context) => {
     // Parse the incoming webhook data from Kixie
     const webhookData = JSON.parse(event.body);
     
-    console.log('GoSpeeds Production Webhook received:', JSON.stringify(webhookData, null, 2));
+    console.log('GoSpeeds Webhook received:', JSON.stringify(webhookData, null, 2));
 
-    // Extract data from Kixie's nested structure
+    // Extract data from Kixie's actual structure
     const data = webhookData.data;
     if (!data) {
       console.log('No data object found in webhook');
@@ -81,7 +81,7 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Parse address and industry from ssData JSON
+    // Parse address and industry from ssData JSON (from powerlistContactDetails)
     let address = '';
     let industry = '';
     try {
@@ -97,49 +97,88 @@ exports.handler = async (event, context) => {
         }
         industry = ssData.Industry || '';
       }
+      // Fallback to powerlistContactSSData if ssData not available
+      else if (data.powerlistContactSSData) {
+        const ssData = JSON.parse(data.powerlistContactSSData);
+        if (ssData['Street Address'] || ssData.City || ssData.State) {
+          address = [
+            ssData['Street Address'],
+            ssData.City,
+            ssData.State,
+            ssData.Zipcode
+          ].filter(Boolean).join(', ');
+        }
+        industry = ssData.Industry || '';
+      }
     } catch (e) {
       console.log('Could not parse ssData:', e);
+    }
+
+    // Build contact name from firstName and lastName, or use title
+    let contactName = '';
+    if (powerlistContactDetails?.firstName || powerlistContactDetails?.lastName) {
+      contactName = `${powerlistContactDetails.firstName || ''} ${powerlistContactDetails.lastName || ''}`.trim();
+    }
+    if (!contactName && powerlistContactDetails?.title) {
+      contactName = powerlistContactDetails.title;
+    }
+    if (!contactName) {
+      contactName = 'Unknown Contact';
     }
 
     // Process the webhook data with Kixie's actual structure
     const processedLead = {
       id: Date.now(),
       businessName: powerlistContactDetails?.companyName || 'Unknown Business',
-      contactName: `${callDetails?.fname || ''} ${callDetails?.lname || ''}`.trim() || 'Unknown Contact',
-      phone: data.phone || callDetails?.tonumber || callDetails?.fromnumber || '',
+      contactName: contactName,
+      phone: data.phone || data.number || data.customernumber || callDetails?.tonumber || '',
       address: address,
       email: powerlistContactDetails?.email || '',
       industry: industry,
+      title: powerlistContactDetails?.title || '',
       status: (data.disposition || 'note').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z-]/g, ''),
       callDateTime: callDetails?.calldate || callDetails?.answerDate || new Date().toISOString(),
       duration: callDetails?.duration ? `${callDetails.duration} seconds` : 'N/A',
       notes: data.note || data.notes || '',
       agentName: callDetails?.calleridName || `${callDetails?.fname} ${callDetails?.lname}` || 'Unknown Agent',
       agentEmail: agentEmail,
-      callType: callDetails?.calltype || 'outgoing',
+      callType: callDetails?.calltype || data.callType || 'outgoing',
       callStatus: callDetails?.callstatus || 'unknown',
       recordingUrl: callDetails?.recordingurl || '',
-      kixieCallId: callDetails?.callid || data.callid || '',
+      kixieCallId: callDetails?.callid || data.callid || data.externalid || '',
       powerlistId: data.powerlistId || '',
+      phoneNumber164: powerlistContactDetails?.phoneNumber164 || data.customernumber || '',
       lastUpdated: new Date().toISOString()
     };
 
     // Validate and normalize status
     const validStatuses = ['interested', 'not-interested', 'followup', 'quoted', 'note', 'na', 'ivr', 'left-live-message', 'dnc'];
     if (!validStatuses.includes(processedLead.status)) {
-      console.log(`Invalid status received: ${processedLead.status}, defaulting to 'note'`);
-      processedLead.status = 'note';
+      console.log(`Status "${data.disposition}" normalized to "${processedLead.status}"`);
+      // Try to map common Kixie dispositions
+      const statusMapping = {
+        'left-live-message': 'left-live-message',
+        'leftlivemessage': 'left-live-message',
+        'not-interested': 'not-interested',
+        'notinterested': 'not-interested',
+        'follow-up': 'followup',
+        'followup': 'followup',
+        'interested': 'interested',
+        'quoted': 'quoted',
+        'note': 'note',
+        'na': 'na',
+        'n/a': 'na',
+        'ivr': 'ivr',
+        'dnc': 'dnc',
+        'do-not-call': 'dnc'
+      };
+      
+      processedLead.status = statusMapping[processedLead.status] || 'note';
     }
 
     console.log('Processed GoSpeeds lead:', JSON.stringify(processedLead, null, 2));
 
-    // In production, you might want to:
-    // 1. Store in a database (Supabase, Firebase, etc.)
-    // 2. Send notifications to agents
-    // 3. Trigger other workflows
-    // 4. Log to external analytics
-
-    // For now, return success - the frontend handles localStorage
+    // Return success response
     return {
       statusCode: 200,
       headers,
@@ -149,6 +188,7 @@ exports.handler = async (event, context) => {
         leadId: processedLead.id,
         agent: agentEmail,
         businessName: processedLead.businessName,
+        contactName: processedLead.contactName,
         phone: processedLead.phone,
         status: processedLead.status,
         timestamp: new Date().toISOString()
