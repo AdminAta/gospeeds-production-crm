@@ -1240,7 +1240,12 @@
             const leadIndex = agentLeads.findIndex(l => l.id === leadId);
             const lead = agentLeads[leadIndex];
             
-            if (lead) {
+            if (!lead) {
+                alert('Lead not found');
+                return;
+            }
+            
+            try {
                 const pipelineData = loadPipelineData();
                 if (!pipelineData[currentAgent]) {
                     pipelineData[currentAgent] = [];
@@ -1256,41 +1261,68 @@
                     movedToPipelineDate: new Date().toISOString()
                 };
                 
+                // CRITICAL: Save to local pipeline storage FIRST
                 pipelineData[currentAgent].push(pipelineItem);
                 savePipelineData(pipelineData);
                 
-                // Save to Supabase pipeline table and remove from leads table
+                // CRITICAL: Only try database operations after local save succeeds
+                let databaseSuccess = false;
                 if (supabase) {
                     try {
-                        // Save to pipeline table
-                        await savePipelineToDatabase(pipelineItem);
+                        // Save to pipeline table FIRST
+                        const pipelineResult = await savePipelineToDatabase(pipelineItem);
                         
-                        // Remove from leads table to prevent sync conflicts
-                        if (lead.kixieCallId && lead.kixieCallId !== '') {
-                            await supabase
-                                .from('leads')
-                                .delete()
-                                .eq('kixieCallId', lead.kixieCallId);
+                        if (pipelineResult) {
+                            console.log('Pipeline item saved to database successfully');
+                            databaseSuccess = true;
+                            
+                            // ONLY delete from leads table if pipeline save was successful
+                            if (lead.kixieCallId && lead.kixieCallId !== '' && !lead.kixieCallId.startsWith('manual-')) {
+                                const deleteResult = await supabase
+                                    .from('leads')
+                                    .delete()
+                                    .eq('kixieCallId', lead.kixieCallId);
+                                
+                                if (deleteResult.error) {
+                                    console.error('Error deleting from leads table:', deleteResult.error);
+                                }
+                            } else if (lead.id && lead.kixieCallId && lead.kixieCallId.startsWith('manual-')) {
+                                // For manual leads, delete by id
+                                const deleteResult = await supabase
+                                    .from('leads')
+                                    .delete()
+                                    .eq('id', leadId);
+                                
+                                if (deleteResult.error) {
+                                    console.error('Error deleting manual lead:', deleteResult.error);
+                                }
+                            }
                         } else {
-                            // For manual leads without kixieCallId, delete by id
-                            await supabase
-                                .from('leads')
-                                .delete()
-                                .eq('id', leadId);
+                            console.error('Failed to save pipeline item to database');
                         }
                     } catch (error) {
-                        console.error('Pipeline move error:', error);
-                        // Even if database operation fails, keep local changes
+                        console.error('Database error during pipeline move:', error);
+                        // Don't fail the operation - local save is sufficient
+                        databaseSuccess = false;
                     }
                 }
                 
-                // Remove from local leads data
+                // Remove from local leads data (this is safe because we saved to pipeline first)
                 agentLeads.splice(leadIndex, 1);
                 saveData(allData);
                 
                 updateStats();
                 showContent();
-                alert('Lead moved to pipeline successfully!');
+                
+                if (databaseSuccess) {
+                    alert('Lead moved to pipeline successfully!');
+                } else {
+                    alert('Lead moved to pipeline (saved locally, database sync may be delayed)');
+                }
+                
+            } catch (error) {
+                console.error('Critical error in moveToPipeline:', error);
+                alert('Error moving lead to pipeline. Please try again.');
             }
         }
 
