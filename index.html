@@ -583,6 +583,7 @@
             z-index: 2000;
             align-items: center;
             justify-content: center;
+            backdrop-filter: blur(4px);
         }
 
         .modal-content {
@@ -590,8 +591,11 @@
             border-radius: 15px;
             padding: 30px;
             width: 90%;
-            max-width: 600px;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
             border: 1px solid var(--border-color);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
         }
 
         .modal-header {
@@ -614,6 +618,18 @@
             cursor: pointer;
             color: var(--text-secondary);
             padding: 5px;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
         }
 
         .form-group {
@@ -832,8 +848,8 @@
                     <textarea class="form-input form-textarea" id="newNotes"></textarea>
                 </div>
                 <div class="modal-actions">
-                    <button type="button" onclick="closeNewLeadModal()" style="background: #6b7280;">Cancel</button>
-                    <button type="submit" style="background: linear-gradient(135deg, #22c55e, #16a34a);">Save Lead</button>
+                    <button type="button" onclick="closeNewLeadModal()" style="background: #6b7280; color: white;">Cancel</button>
+                    <button type="submit" style="background: linear-gradient(135deg, #22c55e, #16a34a); color: white;">Save Lead</button>
                 </div>
             </form>
         </div>
@@ -1127,7 +1143,7 @@
 
         function makeEditable(element, leadId, field) {
             // Only allow editing for specific fields
-            const editableFields = ['businessName', 'address', 'notes'];
+            const editableFields = ['address', 'notes'];
             if (!editableFields.includes(field)) return;
             
             if (element.classList.contains('editing')) return;
@@ -1215,30 +1231,45 @@
                     pipelineData[currentAgent] = [];
                 }
                 
+                // Create pipeline item with unique ID to avoid conflicts
                 const pipelineItem = {
                     ...lead,
+                    id: `pipeline-${Date.now()}-${leadId}`, // Unique pipeline ID
                     followUpDate: followUpDate,
                     originalCallDate: lead.callDateTime,
+                    originalLeadId: leadId, // Keep reference to original lead
                     movedToPipelineDate: new Date().toISOString()
                 };
                 
                 pipelineData[currentAgent].push(pipelineItem);
                 savePipelineData(pipelineData);
                 
+                // Save to Supabase pipeline table and remove from leads table
                 if (supabase) {
                     try {
+                        // Save to pipeline table
                         await savePipelineToDatabase(pipelineItem);
-                        if (lead.kixieCallId) {
+                        
+                        // Remove from leads table to prevent sync conflicts
+                        if (lead.kixieCallId && lead.kixieCallId !== '') {
                             await supabase
                                 .from('leads')
                                 .delete()
                                 .eq('kixieCallId', lead.kixieCallId);
+                        } else {
+                            // For manual leads without kixieCallId, delete by id
+                            await supabase
+                                .from('leads')
+                                .delete()
+                                .eq('id', leadId);
                         }
                     } catch (error) {
                         console.error('Pipeline move error:', error);
+                        // Even if database operation fails, keep local changes
                     }
                 }
                 
+                // Remove from local leads data
                 agentLeads.splice(leadIndex, 1);
                 saveData(allData);
                 
@@ -1532,7 +1563,7 @@
                 <div class="lead-card">
                     <div class="lead-header">
                         <div>
-                            <div class="lead-title editable-field" onclick="makeEditable(this, ${lead.id}, 'businessName')">${lead.businessName || 'Unknown Business'}</div>
+                            <div class="lead-title locked-field">${lead.businessName || 'Unknown Business'}</div>
                             <div class="lead-phone locked-field" onclick="makeCall('${formatPhoneForCall(lead.phone)}')">${lead.phone}</div>
                             <span class="status-badge status-${lead.status}">${formatStatus(lead.status)}</span>
                         </div>
@@ -1697,13 +1728,15 @@
         setInterval(async () => {
             if (currentAgent && supabase) {
                 try {
+                    // Only sync leads, not pipeline - pipeline is managed separately
                     const dbLeads = await loadDataFromDatabase();
                     const localData = loadData();
-                    localData[currentAgent] = dbLeads;
-                    saveData(localData);
                     
-                    updateStats();
-                    if (currentMainTab === 'leads') {
+                    // Only update if we have leads data and we're not in pipeline view
+                    if (dbLeads && currentMainTab === 'leads') {
+                        localData[currentAgent] = dbLeads;
+                        saveData(localData);
+                        updateStats();
                         showContent();
                     }
                 } catch (error) {
