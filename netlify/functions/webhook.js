@@ -96,6 +96,16 @@ exports.handler = async (event, context) => {
       contactName = 'Unknown Contact';
     }
 
+    // Extract notes from multiple sources including nextCallRefresher
+    let notes = '';
+    if (data?.note) {
+      notes = data.note;
+    } else if (powerlistContactDetails?.nextCallRefresher) {
+      notes = powerlistContactDetails.nextCallRefresher;
+    } else if (data?.notes) {
+      notes = data.notes;
+    }
+
     // Create lead object
     const processedLead = {
       id: Date.now(),
@@ -109,13 +119,14 @@ exports.handler = async (event, context) => {
       status: (data?.disposition || 'Note').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z-]/g, ''),
       callDateTime: callDetails?.calldate || new Date().toISOString(),
       duration: callDetails?.duration ? `${callDetails.duration} seconds` : 'N/A',
-      notes: data?.note || '',
+      notes: notes,
       agentName: callDetails?.calleridName || 'Unknown Agent',
       agentEmail: agentEmail,
       callType: callDetails?.calltype || 'outgoing',
       callStatus: callDetails?.callstatus || 'unknown',
       recordingUrl: callDetails?.recordingurl || '',
       kixieCallId: callDetails?.callid || data?.callid || data?.externalid || '',
+      addressVerified: false,
       timestamp: new Date().toISOString()
     };
 
@@ -143,6 +154,7 @@ exports.handler = async (event, context) => {
     console.log('Contact:', processedLead.contactName);
     console.log('Phone:', processedLead.phone);
     console.log('Status:', processedLead.status);
+    console.log('Notes:', processedLead.notes);
     console.log('Agent:', processedLead.agentEmail);
     console.log('=== END PROCESSED ===');
 
