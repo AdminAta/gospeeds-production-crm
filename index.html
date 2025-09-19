@@ -5,6 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GoSpeeds CRM</title>
     <style>
+        :root {
+            --bg-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --bg-secondary: rgba(255, 255, 255, 0.95);
+            --bg-card: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e0e7ff;
+            --accent-color: #667eea;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        .dark-mode {
+            --bg-primary: #212121;
+            --bg-secondary: rgba(33, 33, 33, 0.95);
+            --bg-card: linear-gradient(135deg, #2a2a2a, #333333);
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --border-color: #404040;
+            --accent-color: #667eea;
+            --shadow: rgba(255, 255, 255, 0.1);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -13,9 +35,10 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--bg-primary);
             min-height: 100vh;
             padding: 20px;
+            transition: all 0.3s ease;
         }
 
         .container {
@@ -24,12 +47,47 @@
         }
 
         .header {
-            background: rgba(255, 255, 255, 0.95);
+            background: var(--bg-secondary);
             backdrop-filter: blur(10px);
             border-radius: 15px;
             padding: 20px;
             margin-bottom: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 32px var(--shadow);
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .dark-mode-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: 20px;
+            padding: 6px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            width: fit-content;
+        }
+
+        .dark-mode-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .theme-icon {
+            font-size: 16px;
+            transition: transform 0.3s ease;
+        }
+
+        .theme-text {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-primary);
         }
 
         .login-section {
@@ -42,15 +100,17 @@
 
         select, input, button {
             padding: 10px 15px;
-            border: 2px solid #e0e7ff;
+            border: 2px solid var(--border-color);
             border-radius: 8px;
             font-size: 14px;
             transition: all 0.3s ease;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
         }
 
         select:focus, input:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: var(--accent-color);
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
@@ -97,7 +157,7 @@
         .agent-name {
             font-weight: bold;
             font-size: 1.1em;
-            color: #1e293b;
+            color: var(--text-primary);
         }
 
         .agent-phone {
@@ -108,16 +168,18 @@
         }
 
         .phone-input {
-            border: 1px solid #d1d5db;
+            border: 1px solid var(--border-color);
             padding: 4px 8px;
             border-radius: 4px;
             font-size: 0.9em;
             width: 150px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
         }
 
         .edit-icon {
             cursor: pointer;
-            color: #667eea;
+            color: var(--accent-color);
             font-size: 0.9em;
         }
 
@@ -138,13 +200,14 @@
         }
 
         .stat-card {
-            background: rgba(255, 255, 255, 0.95);
+            background: var(--bg-secondary);
             backdrop-filter: blur(10px);
             border-radius: 12px;
             padding: 15px;
             text-align: center;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 32px var(--shadow);
             transition: transform 0.3s ease;
+            border: 1px solid var(--border-color);
         }
 
         .stat-card:hover {
@@ -154,12 +217,12 @@
         .stat-number {
             font-size: 1.8em;
             font-weight: bold;
-            color: #667eea;
+            color: var(--accent-color);
             margin-bottom: 5px;
         }
 
         .stat-label {
-            color: #64748b;
+            color: var(--text-secondary);
             font-size: 0.8em;
             font-weight: 600;
         }
@@ -168,11 +231,12 @@
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
-            background: rgba(255, 255, 255, 0.95);
+            background: var(--bg-secondary);
             backdrop-filter: blur(10px);
             border-radius: 12px;
             padding: 10px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 32px var(--shadow);
+            border: 1px solid var(--border-color);
         }
 
         .main-tab {
@@ -185,7 +249,7 @@
             font-weight: 600;
             font-size: 1em;
             transition: all 0.3s ease;
-            color: #64748b;
+            color: var(--text-secondary);
         }
 
         .main-tab.active {
@@ -199,13 +263,14 @@
             display: flex;
             gap: 5px;
             margin-bottom: 20px;
-            background: rgba(255, 255, 255, 0.95);
+            background: var(--bg-secondary);
             backdrop-filter: blur(10px);
             border-radius: 12px;
             padding: 5px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 32px var(--shadow);
             overflow-x: auto;
             min-height: 50px;
+            border: 1px solid var(--border-color);
         }
 
         .tab {
@@ -218,7 +283,7 @@
             font-weight: 600;
             font-size: 0.85em;
             transition: all 0.3s ease;
-            color: #64748b;
+            color: var(--text-secondary);
             white-space: nowrap;
             min-width: 80px;
         }
@@ -231,27 +296,29 @@
         }
 
         .content-container {
-            background: rgba(255, 255, 255, 0.95);
+            background: var(--bg-secondary);
             backdrop-filter: blur(10px);
             border-radius: 15px;
             padding: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 32px var(--shadow);
             min-height: 400px;
+            border: 1px solid var(--border-color);
         }
 
         .lead-card {
-            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            background: var(--bg-card);
             border-radius: 12px;
             padding: 20px;
             margin-bottom: 15px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 12px var(--shadow);
             transition: all 0.3s ease;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid var(--accent-color);
+            border: 1px solid var(--border-color);
         }
 
         .lead-card:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 24px var(--shadow);
         }
 
         .lead-header {
@@ -264,12 +331,42 @@
         .lead-title {
             font-size: 1.2em;
             font-weight: bold;
-            color: #1e293b;
+            color: var(--text-primary);
             margin-bottom: 5px;
         }
 
+        .editable-field {
+            cursor: pointer;
+            border: 1px solid transparent;
+            padding: 2px 4px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .editable-field:hover {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: var(--accent-color);
+        }
+
+        .locked-field {
+            cursor: default;
+            color: var(--text-secondary);
+        }
+
+        .locked-field:hover {
+            background: none;
+            border-color: transparent;
+        }
+
+        .editing {
+            background: var(--bg-secondary);
+            border-color: var(--accent-color);
+            outline: none;
+            color: var(--text-primary);
+        }
+
         .lead-phone {
-            color: #667eea;
+            color: var(--accent-color);
             font-weight: 600;
             cursor: pointer;
             text-decoration: underline;
@@ -293,28 +390,76 @@
 
         .detail-label {
             font-size: 0.85em;
-            color: #64748b;
+            color: var(--text-secondary);
             margin-bottom: 3px;
             font-weight: 600;
         }
 
         .detail-value {
-            color: #1e293b;
+            color: var(--text-primary);
             font-weight: 500;
         }
 
-        .editable-email {
+        .address-container {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .address-text {
+            flex: 1;
+        }
+
+        .address-checkbox {
             display: flex;
             align-items: center;
             gap: 5px;
+            margin-top: 5px;
+            font-size: 0.8em;
+            color: var(--text-secondary);
         }
 
-        .email-input {
-            border: 1px solid #d1d5db;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.9em;
-            min-width: 150px;
+        .address-checkbox input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+        }
+
+        .notes-container {
+            margin-bottom: 15px;
+        }
+
+        .notes-text {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 6px;
+            padding: 10px;
+            color: var(--text-primary);
+            min-height: 80px;
+            resize: vertical;
+            width: 100%;
+            font-family: inherit;
+        }
+
+        .notes-edit {
+            border-color: var(--accent-color);
+            outline: none;
+        }
+
+        .add-notes-btn {
+            background: rgba(59, 130, 246, 0.1);
+            border: 2px dashed rgba(59, 130, 246, 0.3);
+            border-radius: 6px;
+            padding: 10px;
+            color: var(--accent-color);
+            cursor: pointer;
+            text-align: center;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .add-notes-btn:hover {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: var(--accent-color);
         }
 
         .lead-actions {
@@ -353,16 +498,18 @@
         }
 
         .date-input {
-            border: 1px solid #d1d5db;
+            border: 1px solid var(--border-color);
             padding: 4px 8px;
             border-radius: 4px;
             font-size: 0.8em;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
         }
 
         .empty-state {
             text-align: center;
             padding: 40px;
-            color: #64748b;
+            color: var(--text-secondary);
         }
 
         .empty-icon {
@@ -391,27 +538,123 @@
         .status-dnc { background: rgba(239, 68, 68, 0.2); color: #dc2626; }
         .status-pipeline { background: rgba(6, 182, 212, 0.2); color: #0891b2; }
 
-        .pipeline-date {
-            font-size: 0.8em;
-            color: #0891b2;
+        .fixed-buttons {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .floating-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 24px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .floating-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .btn-new-lead {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+        }
+
+        .btn-export {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            border-radius: 15px;
+            padding: 30px;
+            width: 90%;
+            max-width: 600px;
+            border: 1px solid var(--border-color);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 5px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
             font-weight: 600;
-            margin-top: 5px;
+            color: var(--text-secondary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .form-textarea {
+            height: 80px;
+            resize: vertical;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
         }
 
         .pipeline-due {
-            background: rgba(239, 68, 68, 0.1);
-            border-left-color: #ef4444;
+            animation: pulse 2s infinite;
         }
 
-        .recording-link {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .recording-link:hover {
-            color: #4f46e5;
-            text-decoration: underline;
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 4px 12px var(--shadow); }
+            50% { box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3); }
         }
 
         @media (max-width: 768px) {
@@ -427,12 +670,27 @@
             .lead-details {
                 grid-template-columns: 1fr;
             }
+
+            .dark-mode-toggle {
+                position: relative;
+                margin-bottom: 15px;
+            }
+
+            .fixed-buttons {
+                bottom: 80px;
+                right: 10px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
+            <div class="dark-mode-toggle" onclick="toggleDarkMode()">
+                <span class="theme-icon" id="themeIcon">🌙</span>
+                <span class="theme-text" id="themeText">Dark</span>
+            </div>
+
             <div class="login-section">
                 <select id="agentSelect">
                     <option value="">Select Agent</option>
@@ -527,12 +785,67 @@
         </div>
     </div>
 
+    <!-- Fixed Action Buttons -->
+    <div class="fixed-buttons">
+        <button class="floating-btn btn-new-lead" onclick="openNewLeadModal()" title="New Lead">+</button>
+        <button class="floating-btn btn-export" onclick="exportData()" title="Export CSV">📊</button>
+    </div>
+
+    <!-- New Lead Modal -->
+    <div id="newLeadModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Add New Lead</h2>
+                <button class="close-btn" onclick="closeNewLeadModal()">&times;</button>
+            </div>
+            <form id="newLeadForm">
+                <div class="form-group">
+                    <label class="form-label">Business Name *</label>
+                    <input type="text" class="form-input" id="newBusinessName" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Contact Name</label>
+                    <input type="text" class="form-input" id="newContactName">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Phone Number *</label>
+                    <input type="tel" class="form-input" id="newPhone" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" id="newEmail">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Address</label>
+                    <input type="text" class="form-input" id="newAddress">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Industry</label>
+                    <input type="text" class="form-input" id="newIndustry">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Title</label>
+                    <input type="text" class="form-input" id="newTitle">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Notes</label>
+                    <textarea class="form-input form-textarea" id="newNotes"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" onclick="closeNewLeadModal()" style="background: #6b7280;">Cancel</button>
+                    <button type="submit" style="background: linear-gradient(135deg, #22c55e, #16a34a);">Save Lead</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.1/dist/umd/supabase.min.js"></script>
     <script>
         let currentAgent = '';
         let currentTab = 'all';
         let currentMainTab = 'leads';
         let supabase = null;
+        let isDarkMode = localStorage.getItem('darkMode') === 'true';
 
         // *** REPLACE THESE WITH YOUR ACTUAL SUPABASE CREDENTIALS ***
         const SUPABASE_URL = 'https://rzmyxyulcbkblckiwhzg.supabase.co';
@@ -548,6 +861,32 @@
             'raheem@gospeeds.com': 'Raheem Hassan',
             'shamail@gospeeds.com': 'Shamail Ali'
         };
+
+        // Initialize dark mode on load
+        document.addEventListener('DOMContentLoaded', function() {
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+                document.getElementById('themeIcon').textContent = '☀️';
+                document.getElementById('themeText').textContent = 'Light';
+            }
+            initSupabase();
+        });
+
+        // Toggle dark mode
+        function toggleDarkMode() {
+            isDarkMode = !isDarkMode;
+            localStorage.setItem('darkMode', isDarkMode);
+            
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+                document.getElementById('themeIcon').textContent = '☀️';
+                document.getElementById('themeText').textContent = 'Light';
+            } else {
+                document.body.classList.remove('dark-mode');
+                document.getElementById('themeIcon').textContent = '🌙';
+                document.getElementById('themeText').textContent = 'Dark';
+            }
+        }
 
         // Initialize Supabase client
         function initSupabase() {
@@ -654,6 +993,27 @@
             }
         }
 
+        // Save pipeline item to Supabase
+        async function savePipelineToDatabase(pipelineItem) {
+            if (!supabase) return false;
+
+            try {
+                const { data, error } = await supabase
+                    .from('pipeline')
+                    .upsert(pipelineItem, { onConflict: 'id' });
+
+                if (error) {
+                    console.error('Save pipeline error:', error);
+                    return false;
+                }
+
+                return true;
+            } catch (error) {
+                console.error('Database pipeline save error:', error);
+                return false;
+            }
+        }
+
         function login() {
             const agentSelect = document.getElementById('agentSelect');
             currentAgent = agentSelect.value;
@@ -663,17 +1023,13 @@
                 return;
             }
 
-            // Initialize Supabase
             const dbConnected = initSupabase();
 
-            // Reset admin webhook visibility
             document.getElementById('adminWebhook').style.display = 'none';
-
             document.getElementById('crmInterface').style.display = 'block';
             document.getElementById('agentInfo').style.display = 'flex';
             document.getElementById('agentName').textContent = agentNames[currentAgent];
             
-            // Load saved phone number
             const savedPhone = localStorage.getItem(`phone-${currentAgent}`);
             if (savedPhone) {
                 document.getElementById('agentPhoneInput').value = savedPhone;
@@ -681,22 +1037,14 @@
                 document.getElementById('agentPhoneInput').value = '';
             }
 
-            // Show webhook URL ONLY for admin
             if (currentAgent === 'ata@gospeeds.com') {
                 document.getElementById('adminWebhook').style.display = 'block';
                 document.getElementById('webhookUrl').textContent = window.location.origin + '/.netlify/functions/webhook';
             }
 
-            // Update sync status
             document.getElementById('syncStatus').textContent = dbConnected ? 'Database Connected' : 'Using Local Storage';
-            document.getElementById('syncStatus').style.background = dbConnected ? 
-                'rgba(34, 197, 94, 0.1)' : 'rgba(245, 158, 11, 0.1)';
-            document.getElementById('syncStatus').style.borderColor = dbConnected ?
-                'rgba(34, 197, 94, 0.3)' : 'rgba(245, 158, 11, 0.3)';
-            document.getElementById('syncStatus').style.color = dbConnected ?
-                '#16a34a' : '#d97706';
+            document.getElementById('syncStatus').style.background = dbConnected ? 'rgba(34, 197, 94, 0.1)' : 'rgba(245, 158, 11, 0.1)';
             
-            // Load initial data
             syncWithDatabase();
             updateStats();
             showContent();
@@ -724,11 +1072,9 @@
 
             try {
                 if (supabase) {
-                    // Load from database
                     const dbLeads = await loadDataFromDatabase();
                     const dbPipeline = await loadPipelineFromDatabase();
 
-                    // Update local storage
                     const localData = loadData();
                     const localPipeline = loadPipelineData();
 
@@ -738,9 +1084,7 @@
                     saveData(localData);
                     savePipelineData(localPipeline);
 
-                    console.log(`Synced ${dbLeads.length} leads and ${dbPipeline.length} pipeline items from database`);
-                } else {
-                    console.log('Database not configured, using local storage only');
+                    console.log(`Synced ${dbLeads.length} leads and ${dbPipeline.length} pipeline items`);
                 }
 
                 updateStats();
@@ -762,12 +1106,7 @@
             document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
             event.target.classList.add('active');
             
-            if (tab === 'leads') {
-                document.getElementById('leadsSection').style.display = 'block';
-            } else {
-                document.getElementById('leadsSection').style.display = 'none';
-            }
-            
+            document.getElementById('leadsSection').style.display = tab === 'leads' ? 'block' : 'none';
             showContent();
         }
 
@@ -786,244 +1125,73 @@
             }
         }
 
-        function showLeads() {
-            const container = document.getElementById('contentContainer');
-            const allData = loadData();
-            const agentLeads = allData[currentAgent] || [];
+        function makeEditable(element, leadId, field) {
+            // Only allow editing for specific fields
+            const editableFields = ['businessName', 'address', 'notes'];
+            if (!editableFields.includes(field)) return;
             
-            let filteredLeads = agentLeads;
-            if (currentTab !== 'all') {
-                filteredLeads = agentLeads.filter(lead => lead.status === currentTab);
-            }
-
-            filteredLeads.sort((a, b) => new Date(b.callDateTime) - new Date(a.callDateTime));
-
-            if (filteredLeads.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon">📞</div>
-                        <h3>No ${currentTab === 'all' ? '' : formatStatus(currentTab)} leads</h3>
-                        <p>Leads will appear here after calls are made through Kixie</p>
-                    </div>
-                `;
-                return;
-            }
-
-            container.innerHTML = filteredLeads.map(lead => `
-                <div class="lead-card">
-                    <div class="lead-header">
-                        <div>
-                            <div class="lead-title">${lead.businessName || lead.contactName || 'Unknown Business'}</div>
-                            <div class="lead-phone" onclick="makeCall('${formatPhoneForCall(lead.phone)}')">${lead.phone}</div>
-                            <span class="status-badge status-${lead.status}">${formatStatus(lead.status)}</span>
-                        </div>
-                        <div style="text-align: right; font-size: 0.85em; color: #64748b;">
-                            ${new Date(lead.callDateTime).toLocaleString()}
-                            <br>
-                            <span style="font-size: 0.8em;">${lead.callType || 'outgoing'} • ${lead.callStatus || 'unknown'}</span>
-                        </div>
-                    </div>
-                    
-                    <div class="lead-details">
-                        ${lead.contactName ? `
-                            <div class="detail-item">
-                                <div class="detail-label">Contact Name</div>
-                                <div class="detail-value">${lead.contactName}</div>
-                            </div>
-                        ` : ''}
-                        ${lead.title ? `
-                            <div class="detail-item">
-                                <div class="detail-label">Title</div>
-                                <div class="detail-value">${lead.title}</div>
-                            </div>
-                        ` : ''}
-                        <div class="detail-item">
-                            <div class="detail-label">Email</div>
-                            <div class="detail-value">
-                                <div class="editable-email">
-                                    <input type="email" class="email-input" value="${lead.email || ''}" 
-                                           onchange="updateLeadEmail(${lead.id}, this.value)" placeholder="Add email">
-                                </div>
-                            </div>
-                        </div>
-                        ${lead.industry ? `
-                            <div class="detail-item">
-                                <div class="detail-label">Industry</div>
-                                <div class="detail-value">${lead.industry}</div>
-                            </div>
-                        ` : ''}
-                        ${lead.address ? `
-                            <div class="detail-item">
-                                <div class="detail-label">Address</div>
-                                <div class="detail-value">${lead.address}</div>
-                            </div>
-                        ` : ''}
-                        <div class="detail-item">
-                            <div class="detail-label">Call Duration</div>
-                            <div class="detail-value">${lead.duration || 'N/A'}</div>
-                        </div>
-                        ${lead.recordingUrl ? `
-                            <div class="detail-item">
-                                <div class="detail-label">Recording</div>
-                                <div class="detail-value">
-                                    <a href="${lead.recordingUrl}" target="_blank" class="recording-link">
-                                        🎵 Listen to Recording
-                                    </a>
-                                </div>
-                            </div>
-                        ` : ''}
-                    </div>
-
-                    ${lead.notes ? `
-                        <div class="detail-item" style="margin-bottom: 15px;">
-                            <div class="detail-label">Notes</div>
-                            <div class="detail-value">${lead.notes}</div>
-                        </div>
-                    ` : ''}
-
-                    <div class="lead-actions">
-                        <button class="action-btn btn-interested" onclick="updateLeadStatus(${lead.id}, 'interested')">
-                            Interested
-                        </button>
-                        <button class="action-btn btn-not-interested" onclick="updateLeadStatus(${lead.id}, 'not-interested')">
-                            Not Interested
-                        </button>
-                        <button class="action-btn btn-followup" onclick="updateLeadStatus(${lead.id}, 'followup')">
-                            Follow-up
-                        </button>
-                        <button class="action-btn btn-quoted" onclick="updateLeadStatus(${lead.id}, 'quoted')">
-                            Quoted
-                        </button>
-                        <button class="action-btn btn-dnc" onclick="updateLeadStatus(${lead.id}, 'dnc')">
-                            DNC
-                        </button>
-                    </div>
-                    
-                    <div class="pipeline-actions">
-                        <input type="date" class="date-input" id="date-${lead.id}" min="${new Date().toISOString().split('T')[0]}">
-                        <button class="action-btn btn-pipeline" onclick="moveToPipeline(${lead.id})">
-                            Move to Pipeline
-                        </button>
-                    </div>
-                </div>
-            `).join('');
+            if (element.classList.contains('editing')) return;
+            
+            const currentValue = element.textContent;
+            element.classList.add('editing');
+            element.contentEditable = true;
+            element.focus();
+            
+            const range = document.createRange();
+            range.selectNodeContents(element);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            
+            element.addEventListener('blur', () => finishEdit(element, leadId, field, currentValue));
+            element.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    element.blur();
+                }
+            });
         }
 
-        function showPipeline() {
-            const container = document.getElementById('contentContainer');
-            const pipelineData = loadPipelineData();
-            const agentPipeline = pipelineData[currentAgent] || [];
+        async function finishEdit(element, leadId, field, originalValue) {
+            const newValue = element.textContent.trim();
+            element.classList.remove('editing');
+            element.contentEditable = false;
             
-            agentPipeline.sort((a, b) => new Date(a.followUpDate) - new Date(b.followUpDate));
-            
-            if (agentPipeline.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon">📋</div>
-                        <h3>No pipeline items</h3>
-                        <p>Move leads to pipeline to follow up on specific dates</p>
-                    </div>
-                `;
-                return;
-            }
-
-            const today = new Date().toDateString();
-            
-            container.innerHTML = agentPipeline.map(item => {
-                const followUpDate = new Date(item.followUpDate);
-                const isDue = followUpDate.toDateString() === today || followUpDate < new Date();
+            if (newValue !== originalValue && newValue !== '') {
+                const allData = loadData();
+                const agentLeads = allData[currentAgent] || [];
+                const lead = agentLeads.find(l => l.id === leadId);
                 
-                return `
-                    <div class="lead-card ${isDue ? 'pipeline-due' : ''}">
-                        <div class="lead-header">
-                            <div>
-                                <div class="lead-title">${item.businessName || item.contactName || 'Unknown Business'}</div>
-                                <div class="lead-phone" onclick="makeCall('${formatPhoneForCall(item.phone)}')">${item.phone}</div>
-                                <span class="status-badge status-pipeline">Pipeline</span>
-                                <div class="pipeline-date">Follow-up: ${followUpDate.toLocaleDateString()}</div>
-                                ${isDue ? '<div style="color: #ef4444; font-weight: bold; font-size: 0.9em;">📅 Due Today!</div>' : ''}
-                            </div>
-                            <div style="text-align: right;">
-                                <button class="action-btn" style="background: #ef4444;" onclick="removeFromPipeline(${item.id})">
-                                    Remove
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div class="lead-details">
-                            ${item.contactName ? `
-                                <div class="detail-item">
-                                    <div class="detail-label">Contact Name</div>
-                                    <div class="detail-value">${item.contactName}</div>
-                                </div>
-                            ` : ''}
-                            <div class="detail-item">
-                                <div class="detail-label">Email</div>
-                                <div class="detail-value">${item.email || 'No email'}</div>
-                            </div>
-                            ${item.industry ? `
-                                <div class="detail-item">
-                                    <div class="detail-label">Industry</div>
-                                    <div class="detail-value">${item.industry}</div>
-                                </div>
-                            ` : ''}
-                            ${item.address ? `
-                                <div class="detail-item">
-                                    <div class="detail-label">Address</div>
-                                    <div class="detail-value">${item.address}</div>
-                                </div>
-                            ` : ''}
-                            <div class="detail-item">
-                                <div class="detail-label">Original Call Date</div>
-                                <div class="detail-value">${new Date(item.originalCallDate).toLocaleDateString()}</div>
-                            </div>
-                        </div>
-
-                        ${item.notes ? `
-                            <div class="detail-item" style="margin-top: 15px;">
-                                <div class="detail-label">Notes</div>
-                                <div class="detail-value">${item.notes}</div>
-                            </div>
-                        ` : ''}
-                    </div>
-                `;
-            }).join('');
+                if (lead) {
+                    lead[field] = newValue;
+                    lead.lastUpdated = new Date().toISOString();
+                    saveData(allData);
+                    
+                    if (supabase) {
+                        await saveLeadToDatabase(lead);
+                    }
+                }
+            } else if (newValue === '') {
+                element.textContent = originalValue;
+            }
         }
 
-        async function updateLeadStatus(leadId, status) {
+        async function updateAddressVerification(leadId, checked) {
             const allData = loadData();
             const agentLeads = allData[currentAgent] || [];
             const lead = agentLeads.find(l => l.id === leadId);
             
             if (lead) {
-                lead.status = status;
+                lead.addressVerified = checked;
                 lead.lastUpdated = new Date().toISOString();
                 saveData(allData);
                 
-                // Save to database if available
                 if (supabase) {
                     await saveLeadToDatabase(lead);
                 }
                 
                 updateStats();
                 showContent();
-            }
-        }
-
-        function updateLeadEmail(leadId, email) {
-            const allData = loadData();
-            const agentLeads = allData[currentAgent] || [];
-            const lead = agentLeads.find(l => l.id === leadId);
-            
-            if (lead) {
-                lead.email = email;
-                lead.lastUpdated = new Date().toISOString();
-                saveData(allData);
-                
-                // Save to database if available
-                if (supabase) {
-                    saveLeadToDatabase(lead);
-                }
             }
         }
 
@@ -1057,14 +1225,17 @@
                 pipelineData[currentAgent].push(pipelineItem);
                 savePipelineData(pipelineData);
                 
-                // Save to database if available
                 if (supabase) {
                     try {
-                        await supabase
-                            .from('pipeline')
-                            .insert(pipelineItem);
+                        await savePipelineToDatabase(pipelineItem);
+                        if (lead.kixieCallId) {
+                            await supabase
+                                .from('leads')
+                                .delete()
+                                .eq('kixieCallId', lead.kixieCallId);
+                        }
                     } catch (error) {
-                        console.error('Pipeline save error:', error);
+                        console.error('Pipeline move error:', error);
                     }
                 }
                 
@@ -1077,7 +1248,7 @@
             }
         }
 
-        function removeFromPipeline(itemId) {
+        async function removeFromPipeline(itemId) {
             if (!confirm('Are you sure you want to remove this item from the pipeline?')) {
                 return;
             }
@@ -1090,13 +1261,15 @@
                 agentPipeline.splice(itemIndex, 1);
                 savePipelineData(pipelineData);
                 
-                // Remove from database if available
                 if (supabase) {
-                    supabase
-                        .from('pipeline')
-                        .delete()
-                        .eq('id', itemId)
-                        .then(() => console.log('Pipeline item removed from database'));
+                    try {
+                        await supabase
+                            .from('pipeline')
+                            .delete()
+                            .eq('id', itemId);
+                    } catch (error) {
+                        console.error('Error removing pipeline item:', error);
+                    }
                 }
                 
                 updateStats();
@@ -1104,29 +1277,147 @@
             }
         }
 
+        function openNewLeadModal() {
+            if (!currentAgent) {
+                alert('Please login first');
+                return;
+            }
+            document.getElementById('newLeadModal').style.display = 'flex';
+        }
+
+        function closeNewLeadModal() {
+            document.getElementById('newLeadModal').style.display = 'none';
+            document.getElementById('newLeadForm').reset();
+        }
+
+        document.getElementById('newLeadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const newLead = {
+                id: Date.now(),
+                businessName: document.getElementById('newBusinessName').value.trim(),
+                contactName: document.getElementById('newContactName').value.trim(),
+                phone: document.getElementById('newPhone').value.trim(),
+                email: document.getElementById('newEmail').value.trim(),
+                address: document.getElementById('newAddress').value.trim(),
+                industry: document.getElementById('newIndustry').value.trim(),
+                title: document.getElementById('newTitle').value.trim(),
+                notes: document.getElementById('newNotes').value.trim(),
+                status: 'note',
+                callDateTime: new Date().toISOString(),
+                duration: 'Manual Entry',
+                agentName: agentNames[currentAgent],
+                agentEmail: currentAgent,
+                callType: 'manual',
+                callStatus: 'manual',
+                recordingUrl: '',
+                kixieCallId: 'manual-' + Date.now(),
+                addressVerified: false,
+                timestamp: new Date().toISOString()
+            };
+            
+            const allData = loadData();
+            if (!allData[currentAgent]) {
+                allData[currentAgent] = [];
+            }
+            allData[currentAgent].unshift(newLead);
+            saveData(allData);
+            
+            if (supabase) {
+                await saveLeadToDatabase(newLead);
+            }
+            
+            updateStats();
+            showContent();
+            closeNewLeadModal();
+            alert('New lead added successfully!');
+        });
+
+        function exportData() {
+            if (!currentAgent) {
+                alert('Please login first');
+                return;
+            }
+
+            let dataToExport = [];
+            let filename = '';
+
+            if (currentMainTab === 'leads') {
+                const allData = loadData();
+                dataToExport = allData[currentAgent] || [];
+                filename = `leads_${agentNames[currentAgent]}_${new Date().toISOString().split('T')[0]}.csv`;
+            } else {
+                const pipelineData = loadPipelineData();
+                dataToExport = pipelineData[currentAgent] || [];
+                filename = `pipeline_${agentNames[currentAgent]}_${new Date().toISOString().split('T')[0]}.csv`;
+            }
+
+            if (dataToExport.length === 0) {
+                alert('No data to export');
+                return;
+            }
+
+            const headers = [
+                'Business Name', 'Contact Name', 'Phone', 'Email', 'Address', 
+                'Industry', 'Title', 'Status', 'Notes', 'Call Date', 'Duration', 
+                'Agent', 'Address Verified'
+            ];
+
+            if (currentMainTab === 'pipeline') {
+                headers.push('Follow-up Date');
+            }
+
+            const csvContent = [
+                headers.join(','),
+                ...dataToExport.map(item => [
+                    `"${item.businessName || ''}"`,
+                    `"${item.contactName || ''}"`,
+                    `"${item.phone || ''}"`,
+                    `"${item.email || ''}"`,
+                    `"${item.address || ''}"`,
+                    `"${item.industry || ''}"`,
+                    `"${item.title || ''}"`,
+                    `"${item.status || ''}"`,
+                    `"${(item.notes || '').replace(/"/g, '""')}"`,
+                    `"${new Date(item.callDateTime).toLocaleString()}"`,
+                    `"${item.duration || ''}"`,
+                    `"${item.agentName || ''}"`,
+                    `"${item.addressVerified ? 'Yes' : 'No'}"`,
+                    ...(currentMainTab === 'pipeline' ? [`"${item.followUpDate || ''}"`] : [])
+                ].join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            alert(`Data exported as ${filename}`);
+        }
+
         function makeCall(phoneNumber) {
             if (!phoneNumber) {
                 alert('No phone number available');
                 return;
             }
-            
             const telLink = `tel:${phoneNumber}`;
             window.open(telLink);
         }
 
         function formatPhoneForCall(phone) {
             if (!phone) return '';
-            
             const digits = phone.replace(/\D/g, '');
-            
             if (digits.length === 11 && digits.startsWith('1')) {
                 return `+${digits}`;
             }
-            
             if (digits.length === 10) {
                 return `+1${digits}`;
             }
-            
             return digits.startsWith('+') ? digits : `+${digits}`;
         }
 
@@ -1169,19 +1460,284 @@
             }
         }
 
-        // Auto-sync every 30 seconds if database is connected
-        setInterval(() => {
-            if (currentAgent && supabase) {
-                syncWithDatabase();
-            } else if (currentAgent) {
+        async function updateNotes(leadId, notes) {
+            const allData = loadData();
+            const agentLeads = allData[currentAgent] || [];
+            const lead = agentLeads.find(l => l.id === leadId);
+            
+            if (lead) {
+                lead.notes = notes;
+                lead.lastUpdated = new Date().toISOString();
+                saveData(allData);
+                
+                if (supabase) {
+                    await saveLeadToDatabase(lead);
+                }
+            }
+        }
+
+        function addNotesToLead(leadId) {
+            const container = document.getElementById(`notes-container-${leadId}`);
+            container.innerHTML = `
+                <div class="detail-label">Notes <span class="edit-icon">✏️</span></div>
+                <textarea class="notes-text" onblur="updateNotes(${leadId}, this.value)" onclick="this.classList.add('notes-edit')" placeholder="Add your notes here..."></textarea>
+            `;
+            const textarea = container.querySelector('textarea');
+            textarea.focus();
+        }
+
+        async function updateLeadStatus(leadId, status) {
+            const allData = loadData();
+            const agentLeads = allData[currentAgent] || [];
+            const lead = agentLeads.find(l => l.id === leadId);
+            
+            if (lead) {
+                lead.status = status;
+                lead.lastUpdated = new Date().toISOString();
+                saveData(allData);
+                
+                if (supabase) {
+                    await saveLeadToDatabase(lead);
+                }
+                
                 updateStats();
                 showContent();
             }
+        }
+
+        function showLeads() {
+            const container = document.getElementById('contentContainer');
+            const allData = loadData();
+            const agentLeads = allData[currentAgent] || [];
+            
+            let filteredLeads = agentLeads;
+            if (currentTab !== 'all') {
+                filteredLeads = agentLeads.filter(lead => lead.status === currentTab);
+            }
+
+            filteredLeads.sort((a, b) => new Date(b.callDateTime) - new Date(a.callDateTime));
+
+            if (filteredLeads.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📞</div>
+                        <h3>No ${currentTab === 'all' ? '' : formatStatus(currentTab)} leads</h3>
+                        <p>Leads will appear here after calls are made through Kixie</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filteredLeads.map(lead => `
+                <div class="lead-card">
+                    <div class="lead-header">
+                        <div>
+                            <div class="lead-title editable-field" onclick="makeEditable(this, ${lead.id}, 'businessName')">${lead.businessName || 'Unknown Business'}</div>
+                            <div class="lead-phone locked-field" onclick="makeCall('${formatPhoneForCall(lead.phone)}')">${lead.phone}</div>
+                            <span class="status-badge status-${lead.status}">${formatStatus(lead.status)}</span>
+                        </div>
+                        <div style="text-align: right; font-size: 0.85em; color: var(--text-secondary);">
+                            ${new Date(lead.callDateTime).toLocaleString()}
+                            <br>
+                            <span style="font-size: 0.8em;">${lead.callType || 'outgoing'} • ${lead.callStatus || 'unknown'}</span>
+                        </div>
+                    </div>
+
+                    <div class="notes-container" id="notes-container-${lead.id}">
+                        ${lead.notes ? `
+                            <div class="detail-label">Notes <span class="edit-icon">✏️</span></div>
+                            <textarea class="notes-text" onblur="updateNotes(${lead.id}, this.value)" onclick="this.classList.add('notes-edit')">${lead.notes}</textarea>
+                        ` : `
+                            <div class="add-notes-btn" onclick="addNotesToLead(${lead.id})">
+                                📝 Add Notes
+                            </div>
+                        `}
+                    </div>
+                    
+                    <div class="lead-details">
+                        ${lead.contactName ? `
+                            <div class="detail-item">
+                                <div class="detail-label">Contact Name</div>
+                                <div class="detail-value locked-field">${lead.contactName}</div>
+                            </div>
+                        ` : ''}
+                        ${lead.title ? `
+                            <div class="detail-item">
+                                <div class="detail-label">Title</div>
+                                <div class="detail-value locked-field">${lead.title}</div>
+                            </div>
+                        ` : ''}
+                        <div class="detail-item">
+                            <div class="detail-label">Email</div>
+                            <div class="detail-value locked-field">${lead.email || 'No email'}</div>
+                        </div>
+                        ${lead.industry ? `
+                            <div class="detail-item">
+                                <div class="detail-label">Industry</div>
+                                <div class="detail-value locked-field">${lead.industry}</div>
+                            </div>
+                        ` : ''}
+                        <div class="detail-item">
+                            <div class="detail-label">Address</div>
+                            <div class="address-container">
+                                <div class="address-text editable-field" onclick="makeEditable(this, ${lead.id}, 'address')">${lead.address || 'Add address'}</div>
+                            </div>
+                            <div class="address-checkbox">
+                                <input type="checkbox" ${lead.addressVerified ? 'checked' : ''} 
+                                       onchange="updateAddressVerification(${lead.id}, this.checked)">
+                                <span>This is the correct address</span>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Call Duration</div>
+                            <div class="detail-value">${lead.duration || 'N/A'}</div>
+                        </div>
+                        ${lead.recordingUrl ? `
+                            <div class="detail-item">
+                                <div class="detail-label">Recording</div>
+                                <div class="detail-value">
+                                    <a href="${lead.recordingUrl}" target="_blank" style="color: var(--accent-color); text-decoration: none; font-weight: 600;">
+                                        🎵 Listen to Recording
+                                    </a>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <div class="lead-actions">
+                        <button class="action-btn btn-interested" onclick="updateLeadStatus(${lead.id}, 'interested')">Interested</button>
+                        <button class="action-btn btn-not-interested" onclick="updateLeadStatus(${lead.id}, 'not-interested')">Not Interested</button>
+                        <button class="action-btn btn-followup" onclick="updateLeadStatus(${lead.id}, 'followup')">Follow-up</button>
+                        <button class="action-btn btn-quoted" onclick="updateLeadStatus(${lead.id}, 'quoted')">Quoted</button>
+                        <button class="action-btn btn-dnc" onclick="updateLeadStatus(${lead.id}, 'dnc')">DNC</button>
+                    </div>
+                    
+                    <div class="pipeline-actions">
+                        <input type="date" class="date-input" id="date-${lead.id}" min="${new Date().toISOString().split('T')[0]}">
+                        <button class="action-btn btn-pipeline" onclick="moveToPipeline(${lead.id})">Move to Pipeline</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showPipeline() {
+            const container = document.getElementById('contentContainer');
+            const pipelineData = loadPipelineData();
+            const agentPipeline = pipelineData[currentAgent] || [];
+            
+            agentPipeline.sort((a, b) => new Date(a.followUpDate) - new Date(b.followUpDate));
+            
+            if (agentPipeline.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📋</div>
+                        <h3>No pipeline items</h3>
+                        <p>Move leads to pipeline to follow up on specific dates</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const today = new Date().toDateString();
+            
+            container.innerHTML = agentPipeline.map(item => {
+                const followUpDate = new Date(item.followUpDate);
+                const isDue = followUpDate.toDateString() === today || followUpDate < new Date();
+                
+                return `
+                    <div class="lead-card ${isDue ? 'pipeline-due' : ''}" style="${isDue ? 'background: rgba(239, 68, 68, 0.1); border-left-color: #ef4444;' : ''}">
+                        <div class="lead-header">
+                            <div>
+                                <div class="lead-title">${item.businessName || 'Unknown Business'}</div>
+                                <div class="lead-phone" onclick="makeCall('${formatPhoneForCall(item.phone)}')">${item.phone}</div>
+                                <span class="status-badge status-pipeline">Pipeline</span>
+                                <div style="font-size: 0.8em; color: #0891b2; font-weight: 600; margin-top: 5px;">Follow-up: ${followUpDate.toLocaleDateString()}</div>
+                                ${isDue ? '<div style="color: #ef4444; font-weight: bold; font-size: 0.9em;">📅 Due Today!</div>' : ''}
+                            </div>
+                            <div style="text-align: right;">
+                                <button class="action-btn" style="background: #ef4444;" onclick="removeFromPipeline(${item.id})">Remove</button>
+                            </div>
+                        </div>
+                        
+                        <div class="lead-details">
+                            ${item.contactName ? `
+                                <div class="detail-item">
+                                    <div class="detail-label">Contact Name</div>
+                                    <div class="detail-value">${item.contactName}</div>
+                                </div>
+                            ` : ''}
+                            <div class="detail-item">
+                                <div class="detail-label">Email</div>
+                                <div class="detail-value">${item.email || 'No email'}</div>
+                            </div>
+                            ${item.address ? `
+                                <div class="detail-item">
+                                    <div class="detail-label">Address</div>
+                                    <div class="detail-value">${item.address}</div>
+                                </div>
+                            ` : ''}
+                            <div class="detail-item">
+                                <div class="detail-label">Original Call Date</div>
+                                <div class="detail-value">${new Date(item.originalCallDate).toLocaleDateString()}</div>
+                            </div>
+                        </div>
+
+                        ${item.notes ? `
+                            <div style="margin-top: 15px;">
+                                <div class="detail-label">Notes</div>
+                                <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 6px; padding: 10px; color: var(--text-primary);">${item.notes}</div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Auto-sync every 30 seconds to keep data current
+        setInterval(async () => {
+            if (currentAgent && supabase) {
+                try {
+                    const dbLeads = await loadDataFromDatabase();
+                    const localData = loadData();
+                    localData[currentAgent] = dbLeads;
+                    saveData(localData);
+                    
+                    updateStats();
+                    if (currentMainTab === 'leads') {
+                        showContent();
+                    }
+                } catch (error) {
+                    console.error('Auto-sync error:', error);
+                }
+            }
         }, 30000);
 
-        // Initialize on page load
-        window.addEventListener('load', function() {
-            initSupabase();
+        // Handle window close to save any pending changes
+        window.addEventListener('beforeunload', function() {
+            // Any cleanup if needed
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Alt + N for new lead
+            if (e.altKey && e.key === 'n') {
+                e.preventDefault();
+                openNewLeadModal();
+            }
+            
+            // Alt + E for export
+            if (e.altKey && e.key === 'e') {
+                e.preventDefault();
+                exportData();
+            }
+            
+            // Escape to close modal
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('newLeadModal');
+                if (modal.style.display === 'flex') {
+                    closeNewLeadModal();
+                }
+            }
         });
     </script>
 </body>
