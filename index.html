@@ -1061,6 +1061,9 @@
             document.getElementById('syncStatus').textContent = dbConnected ? 'Database Connected' : 'Using Local Storage';
             document.getElementById('syncStatus').style.background = dbConnected ? 'rgba(34, 197, 94, 0.1)' : 'rgba(245, 158, 11, 0.1)';
             
+            // Load existing pipeline data before syncing to preserve it
+            const existingPipeline = loadPipelineData();
+            
             syncWithDatabase();
             updateStats();
             showContent();
@@ -1088,19 +1091,31 @@
 
             try {
                 if (supabase) {
+                    // Sync leads and pipeline separately - don't overwrite local pipeline data
                     const dbLeads = await loadDataFromDatabase();
                     const dbPipeline = await loadPipelineFromDatabase();
 
                     const localData = loadData();
                     const localPipeline = loadPipelineData();
 
+                    // Only sync leads data
                     localData[currentAgent] = dbLeads;
-                    localPipeline[currentAgent] = dbPipeline;
-
                     saveData(localData);
+
+                    // For pipeline: merge database pipeline with local pipeline (don't overwrite)
+                    if (!localPipeline[currentAgent]) {
+                        localPipeline[currentAgent] = [];
+                    }
+                    
+                    // Only add pipeline items from database that don't already exist locally
+                    const existingPipelineIds = new Set(localPipeline[currentAgent].map(item => item.id));
+                    const newPipelineItems = dbPipeline.filter(item => !existingPipelineIds.has(item.id));
+                    
+                    // Add new items from database without removing existing local items
+                    localPipeline[currentAgent] = [...localPipeline[currentAgent], ...newPipelineItems];
                     savePipelineData(localPipeline);
 
-                    console.log(`Synced ${dbLeads.length} leads and ${dbPipeline.length} pipeline items`);
+                    console.log(`Synced ${dbLeads.length} leads and merged ${newPipelineItems.length} new pipeline items`);
                 }
 
                 updateStats();
@@ -1726,14 +1741,13 @@
 
         // Auto-sync every 30 seconds to keep data current
         setInterval(async () => {
-            if (currentAgent && supabase) {
+            if (currentAgent && supabase && currentMainTab === 'leads') {
                 try {
-                    // Only sync leads, not pipeline - pipeline is managed separately
+                    // Only sync leads when viewing leads tab, never touch pipeline data
                     const dbLeads = await loadDataFromDatabase();
                     const localData = loadData();
                     
-                    // Only update if we have leads data and we're not in pipeline view
-                    if (dbLeads && currentMainTab === 'leads') {
+                    if (dbLeads) {
                         localData[currentAgent] = dbLeads;
                         saveData(localData);
                         updateStats();
